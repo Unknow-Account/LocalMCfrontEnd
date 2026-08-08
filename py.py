@@ -1,3 +1,8 @@
+ServerIP = "2b2t.org"
+
+
+
+
 from flask import Flask, render_template
 import json
 import os
@@ -14,11 +19,20 @@ def index():
     hours = playtime // 72000
 
     #API for server stuff, true/false.
-    externalresponse = requests.get('https://api.mcstatus.io/v2/status/java/supergood.work.gd').json()
+    externalresponse = requests.get(f"https://api.mcstatus.io/v2/status/java/{ServerIP}").json()
     onlinestatus = externalresponse['online'] # T/F
     players = externalresponse['players']['online']
 
-    return render_template('index.html', onlinestatus = onlinestatus, PThours = hours, players=players)
+    if onlinestatus == False:
+        onlinestatus = "offline"
+    else:
+        onlinestatus = "online"
+    
+        
+
+
+
+    return render_template('index.html',SERVER = ServerIP, onlinestatus = onlinestatus, PThours = hours, players=players)
 
 if __name__ == '__main__':
     app.run()

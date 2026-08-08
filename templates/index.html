@@ -1,20 +1,20 @@
 <html>
     <head>
-        <link rel="stylesheet" href="style.css"></link>
-        <title> JustAWebsite-Minecraft </title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <title> {{ SERVER }}-Minecraft </title>
     </head>
     <body>
         <div class="title">
             <h1>Welcome!</h1>
         </div>
         <div class="title-sub">
-            <h6>Currently running for "mc.justawebsite.cc"</h6>
+            <h6>Currently running for {{ SERVER }} </h6>
         </div>    
         <div class="playtime">
             <h6>Playtime</h6>
             <p>{{ PThours }} hours </p>
-            <p> {{ onlinestatus }} </p>
-            <p>{{ players }}</p>
+            <p> {{ SERVER }} is currently {{ onlinestatus }} </p>
+            <p>{{ players }} are online</p>
         </div>
     </body>
 </html>

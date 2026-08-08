@@ -19,3 +19,12 @@ body{
     color: rgba(255, 255, 255, 0.451);
     transform: translateY(-70px);
 }
+
+.playtime{
+    text-align: center;
+    margin: 0 auto;
+    color:white
+
+
+
+}
