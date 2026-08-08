@@ -1,0 +1,21 @@
+body{
+    background-color: black;
+}
+
+
+.title{
+    width:1000px;
+    color: white;
+    text-align: center;
+    font-size: 40px;
+    background-color:rgba(30, 155, 14, 0.581);
+    margin: 0 auto;
+    border-radius: 25px;
+}
+
+.title-sub{
+    text-align: center;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.451);
+    transform: translateY(-70px);
+}
