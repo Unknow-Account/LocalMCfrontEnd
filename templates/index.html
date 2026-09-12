@@ -11,10 +11,47 @@
             <h6>Currently running for {{ SERVER }} </h6>
         </div>    
         <div class="playtime">
-            <h6>Playtime</h6>
-            <p>{{ PThours }} hours </p>
+            <p id="playtime"> Your playtime is {{ PThours }} hours </p>
+            <o id="UUIDResult"> Your UUID will be displayed here</o>
             <p> {{ SERVER }} is currently {{ onlinestatus }} </p>
-            <p>{{ players }} are online</p>
+            <p>{{ players }} people are online</p>
         </div>
+
+        <div class="InputUN">
+            <input type="text" id="userInput" placeholder="Enter Minecraft Username">
+            <button onclick="callUUIDapi()">Submit</button>
+
+            <script>
+                let currentUsername = "";
+                async function callUUIDapi() {
+                    let text = document.getElementById('userInput').value;
+                    if (!text) {
+                        return;
+                    }
+
+                    currentUsername = text;
+
+                    let response = await fetch('/get-data', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},body: JSON.stringify({userInput: text})
+                    });
+                    let data = await response.json()
+
+                    if (!data.success) {document.getElementById('UUIDResult').innerText = data.output;document.getElementById('playtime').innerText ="";return;}
+
+                
+                    document.getElementById('UUIDResult').innerText = data.output;
+                    console.log(data.output);
+                    if (data.player_exist) {document.getElementById('playtime').innerText = data.hours + " hours";}
+
+                    else {document.getElementById('playtime').innerText = "N/A - Player has not joined server"}
+
+                    console.log(playtime);
+
+                }
+
+            </script>
+        </div>
+
     </body>
 </html>

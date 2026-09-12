@@ -1,38 +1,69 @@
-ServerIP = "2b2t.org"
+ServerIP = "mc.justawebsite.cc"
+Stats_Folder = r'C:\STUFF2123123\Minecraft SErver Vanilla\world\players\stats'
 
 
+UUIDUser = 0
 
-
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 import json
 import os
 import requests
+import uuid
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # test for playtime thing, how can one have a input username? Convert to uuid and compare to files in \stats\, if non say player not found or something.
-    with open(r'C:\STUFF2123123\Minecraft SErver Vanilla\world\players\stats\0b2ea760-705e-4737-81c8-2df33aea959a.json', 'r') as f:
-        datastats = json.load(f)
-    playtime = datastats['stats']['minecraft:custom']['minecraft:play_time']
-    hours = playtime // 72000
-
-    #API for server stuff, true/false.
+    # API for server things and yeah
     externalresponse = requests.get(f"https://api.mcstatus.io/v2/status/java/{ServerIP}").json()
-    onlinestatus = externalresponse['online'] # T/F
-    players = externalresponse['players']['online']
 
-    if onlinestatus == False:
-        onlinestatus = "offline"
-    else:
+    onlinestatus = externalresponse['online']
+    players = externalresponse.get('players', {}).get('online', 0)
+
+    if onlinestatus:
         onlinestatus = "online"
-    
-        
+    else:
+        onlinestatus = "offline"
+
+    return render_template('index.html', SERVER=ServerIP,onlinestatus=onlinestatus,PThours="N/A",players=players)
 
 
+@app.route('/get-data', methods=['POST'])
+def get_data():
+    data = request.get_json()
+    user_name = data.get('userInput')
 
-    return render_template('index.html',SERVER = ServerIP, onlinestatus = onlinestatus, PThours = hours, players=players)
+    if not user_name:
+        return jsonify({'success': False,
+                        'output': 'Enter A Username'})
+
+    ## UUID API
+    response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{user_name}")
+
+    api_response = response.json()
+
+    # makes into mc uuid format thing
+    UUIDUser = str(uuid.UUID(api_response['id']))        
+
+    stats_file = os.path.join(Stats_Folder,f'{UUIDUser}.json')
+
+    # Does player have  stat file whatever thing?
+
+    if os.path.exists(stats_file):
+        with open(stats_file, 'r') as f:
+            datastats = json.load(f)
+        playtime = datastats ['stats']['minecraft:custom']['minecraft:play_time']
+        hours = playtime // 72000
+
+        player_exist = True
+
+    else:
+        hours = "N/A"
+        player_exist = False
+    print(hours)
+    return jsonify ({'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist})
+
+
 
 if __name__ == '__main__':
     app.run()
