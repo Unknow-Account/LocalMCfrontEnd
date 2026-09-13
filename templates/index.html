@@ -9,15 +9,13 @@
         </div>
         <div class="title-sub">
             <h6>Currently running for {{ SERVER }} </h6>
-        </div>    
-        <div class="playtime">
-            <p id="playtime"> Your playtime is {{ PThours }} hours </p>
-            <o id="UUIDResult"> Your UUID will be displayed here</o>
-            <p> {{ SERVER }} is currently {{ onlinestatus }} </p>
-            <p>{{ players }} people are online</p>
         </div>
+        
 
         <div class="InputUN">
+            <div class="playtimeTitle">
+                <h2>Enter Minecraft Username Here!</h2>            
+            </div>
             <input type="text" id="userInput" placeholder="Enter Minecraft Username">
             <button onclick="callUUIDapi()">Submit</button>
 
@@ -41,8 +39,8 @@
 
                 
                     document.getElementById('UUIDResult').innerText = data.output;
-                    console.log(data.output);
-                    if (data.player_exist) {document.getElementById('playtime').innerText = data.hours + " hours";}
+
+                    if (data.player_exist) {document.getElementById('playtime').innerText = "Your playtime is " + data.hours + " hours";}
 
                     else {document.getElementById('playtime').innerText = "N/A - Player has not joined server"}
 
@@ -51,6 +49,22 @@
                 }
 
             </script>
+
+        </div>
+
+        <div class="PlayTime">
+            <h3>Your stats will be displayed below</h3>
+            <p id="playtime"> Your playtime is {{ PThours }} hours </p>
+            <p id="UUIDResult"> Your UUID will be displayed here</p>
+            <!-- Actual output is determined by the ID for some reason Idk okay. So just change that -->
+
+        </div>
+        <div class="ServerStatsTitle">
+            <h2>Server Info</h2>
+        </div>
+        <div class="ServerStatsNTitle">
+            <p> {{ SERVER }} is currently {{ onlinestatus }} </p>
+            <p>{{ players }} people are online</p>
         </div>
 
     </body>

@@ -1,5 +1,11 @@
 body{
-    background-color: black;
+    
+    background-image: url('BlackGold.jpg');
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+
 }
 
 
@@ -20,15 +26,49 @@ body{
     transform: translateY(-70px);
 }
 
-.playtime{
+.PlayTime{
+    padding-top: 0px;
     text-align: center;
     margin: 0 auto;
     color:white;
-
-
-
+    
+    background-color:rgba(5, 139, 5, 0.5);
+    border-radius: 25px;
+    width: 400px;
 }
 
+.playtimeTitle {
+    background-color:rgba(14, 155, 143, 0.507);
+    border-radius: 10px;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.ServerStatsNTitle {
+    margin: 0 auto;
+    color:white;
+    text-align: center;
+    
+    background-color:rgba(5, 139, 5, 0.5);
+    border-radius: 15px;
+    width:400px;
+}
+
+.ServerStatsTitle {
+    margin: 0 auto;
+    color:white;
+    text-align: center;
+
+    background-color: rgba(14, 155, 143, 0.507);
+    border-radius: 10px;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+
 .InputUN{
+    padding-top: 0px;
+    margin: 0 auto;
+    text-align: center;
     color:white;
 }

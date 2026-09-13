@@ -1,6 +1,9 @@
+# Set up stuff
+
 ServerIP = "mc.justawebsite.cc"
 Stats_Folder = r'C:\STUFF2123123\Minecraft SErver Vanilla\world\players\stats'
 
+#
 
 UUIDUser = 0
 
@@ -42,13 +45,33 @@ def get_data():
 
     api_response = response.json()
 
-    # makes into mc uuid format thing
-    UUIDUser = str(uuid.UUID(api_response['id']))        
+    print(api_response)
+
+    ## BEDROCK API 
+    def Bedrock_Uuid_Api(UserName):
+        response = requests.get(f"https://mc-api.io/profile/{UserName}/BEDROCK")
+        api_response = response.json()
+
+        if (api_response.get('uuid')):
+            UUIDUser = str(uuid.UUID(api_response['uuid']))
+        else:
+            UUIDUser = str(uuid.UUID(int=0))
+
+        return UUIDUser
+    ## End of BEDROCK API
+
+#
+
+    if (api_response.get('errorMessage')):
+        UUIDUser = Bedrock_Uuid_Api(user_name)
+    else:
+        UUIDUser = str(uuid.UUID(api_response['id']))
 
     stats_file = os.path.join(Stats_Folder,f'{UUIDUser}.json')
 
-    # Does player have  stat file whatever thing?
 
+
+    # Does player have  stat file whatever thing?
     if os.path.exists(stats_file):
         with open(stats_file, 'r') as f:
             datastats = json.load(f)
@@ -61,7 +84,7 @@ def get_data():
         hours = "N/A"
         player_exist = False
     print(hours)
-    return jsonify ({'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist})
+    return jsonify ({'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours})
 
 
 
