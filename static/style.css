@@ -1,5 +1,5 @@
 body{
-    
+    background-color: black;
     background-image: url('BlackGold.jpg');
 
     background-repeat: no-repeat;
@@ -10,7 +10,8 @@ body{
 
 
 .title{
-    width:1000px;
+    width:100%;
+    max-width:1000px;
     color: white;
     text-align: center;
     font-size: 40px;
@@ -26,10 +27,60 @@ body{
     transform: translateY(-70px);
 }
 
+.UserNameInput {
+    width: 100%;
+    max-width:400px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 0 auto;
+
+    display: flex;
+    gap: 6px;
+
+    border:none;
+    outline: none;
+    flex-grow: 1;
+    min-width: 0;
+
+    background-color:rgba(255, 255, 255,.5);
+    border-radius: 10px;
+}
+
+.UserNameInput::placeholder {
+    color:black;
+}
+
+.UserNameInputButton {
+    width: 100%;
+    max-width:100px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    margin: 0 auto;
+
+    border:none;
+    outline: none;
+    flex-grow: 1;
+    min-width: 0;
+
+    background-color:rgba(255, 255, 255,.5);
+    border-radius: 10px;
+}
+
+.UserNameInputButton:hover {
+    background-color:rgba(100,100,100,.5);
+}
+
+
 .PlayTime{
     padding-top: 0px;
     text-align: center;
     margin: 0 auto;
+    padding-top: 0px;
+    padding-bottom: 0px;
+
     color:white;
     
     background-color:rgba(5, 139, 5, 0.5);
@@ -48,6 +99,8 @@ body{
     margin: 0 auto;
     color:white;
     text-align: center;
+    padding-top: 1px;
+    padding-bottom: 1px;
 
     background-color:rgba(5, 139, 5, 0.5);
     border-radius: 15px;

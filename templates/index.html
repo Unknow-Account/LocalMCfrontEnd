@@ -16,8 +16,10 @@
             <div class="playtimeTitle">
                 <h2>Enter Minecraft Username Here!</h2>            
             </div>
-            <input type="text" id="userInput" placeholder="Enter Minecraft Username">
-            <button onclick="callUUIDapi()">Submit</button>
+            <div class="UserNameInput">
+                <input type="text" id="userInput" class="UserNameInput" placeholder="Enter Minecraft Username">
+                <button onclick="callUUIDapi()" class = "UserNameInputButton">Submit</button>
+            </div>
 
             <script>
                 let currentUsername = "";
