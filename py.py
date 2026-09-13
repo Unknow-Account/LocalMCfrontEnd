@@ -1,7 +1,7 @@
 # Set up stuff
 
-ServerIP = "mc.justawebsite.cc"
-Stats_Folder = r'C:\STUFF2123123\Minecraft SErver Vanilla\world\players\stats'
+ServerIP = ""
+Stats_Folder = r''
 
 #
 
