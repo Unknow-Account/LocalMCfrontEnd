@@ -4,7 +4,8 @@
         <title> {{ SERVER }}-Minecraft </title>
     </head>
     <body>
-        <div class="title">
+        <!-- Title BG color is in py.py -->
+        <div class="title" style="{{ TitleBGColor }};">
             <h1>Welcome!</h1>
         </div>
         <div class="title-sub">
@@ -58,15 +59,16 @@
             <h3>Your stats will be displayed below</h3>
             <p id="playtime"> Your playtime is {{ PThours }} hours </p>
             <p id="UUIDResult"> Your UUID will be displayed here</p>
-            <!-- Actual output is determined by the ID for some reason Idk okay. So just change that -->
-
+            <!-- for ABOVE, Actual output is determined by the ID for some reason Idk okay. So just change that -->
+            <a href="/Detailed_User_Stats" class="PlayTimeDetailedStats">Click here for more stats!</a>
         </div>
         <div class="ServerStatsTitle">
             <h2>Server Info</h2>
         </div>
-        <div class="ServerStatsNTitle">
+        <div class="ServerStatsNTitle"  style="{{ ServerStatsBodyColor }};">
             <p> {{ SERVER }} is currently {{ onlinestatus }} </p>
-            <p>{{ players }} people are online</p>
+            <!-- Players text is in py.py -->
+            <p>{{ players }}</p>
         </div>
 
     </body>
