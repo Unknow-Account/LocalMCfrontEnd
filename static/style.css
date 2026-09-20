@@ -79,7 +79,7 @@ body{
     text-align: center;
     margin: 0 auto;
     padding-top: 0px;
-    padding-bottom: 0px;
+    padding-bottom: 15px;
 
     color:white;
     
@@ -124,4 +124,18 @@ body{
     margin: 0 auto;
     text-align: center;
     color:white;
+}
+
+.DetailedUserLink{
+    color: black;
+    background-color: rgba(255, 255, 255, .9);
+    text-decoration: none;
+
+    padding: 3px;
+    border-radius: 8px;
+
+}
+
+.DetailedUserLink:hover{
+    background-color: rgba(150,150,150,.9);
 }

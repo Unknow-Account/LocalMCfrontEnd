@@ -3,6 +3,8 @@
 ServerIP = ""
 Stats_Folder = r''
 
+# extra
+api_request_timeout = 10
 #
 
 UUIDUser = 0
@@ -13,13 +15,14 @@ import json
 import os
 import requests
 import uuid
+import re
 
 app = Flask(__name__)
 #Caching import stuff config
 config = {
     "DEBUG": True,          
     "CACHE_TYPE": "SimpleCache", 
-    "CACHE_DEFAULT_TIMEOUT": 60
+    "CACHE_DEFAULT_TIMEOUT": 600
 }
 app.config.from_mapping(config)
 cache = Cache(app)
@@ -29,8 +32,12 @@ cache = Cache(app)
 @cache.cached(key_prefix='shared_api_data')
 def api_data():
         # API for server things and yeah
-    externalresponse = requests.get(f"https://api.mcstatus.io/v2/status/java/{ServerIP}").json()
-    print("api-pulled-mcstatus(Server Status)")
+    try:
+        externalresponse = requests.get(f"https://api.mcstatus.io/v2/status/java/{ServerIP}", timeout = api_request_timeout).json()
+        print("api-pulled-mcstatus(Server Status)")
+    except:
+        print("mojang-api-timed-out")
+        externalresponse = {"online": False}
 
     onlinestatus = externalresponse['online']
     players1 = externalresponse.get('players', {}).get('online', 0)
@@ -38,10 +45,16 @@ def api_data():
 
     if onlinestatus:
         onlinestatus = "online"
-        players=(str(players1) + "people are current online")
+        players=(str(players1) + "people are currently online")
     else:
         onlinestatus = "offline"
         players=" "
+
+
+    # Temp dont wanna start the server okay
+    onlinestatus = "online"
+    players = "0 people are currently online"
+
 
     # Sets server info body to green/red. Only green if online-anything else red.
     ServerStatsBodyColor = "Background-color: rgba(5, 139, 5, 0.5);"
@@ -53,6 +66,11 @@ def api_data():
     else:
         ServerStatsBodyColor = "Background-color: rgba(139, 5, 5, 0.5);"
         TitleBGColor = "Background-color: rgba(155, 30, 14, 0.581);"
+
+
+
+
+    
 
     return {"SERVER":ServerIP,"onlinestatus":onlinestatus,"PThours":"N/A","players":players,"ServerStatsBodyColor":ServerStatsBodyColor,"TitleBGColor":TitleBGColor}
 
@@ -75,22 +93,38 @@ def index():
 def get_data():
     data = request.get_json()
     user_name = data.get('userInput')
+    UserNameCheckList = re.compile(r'^[A-Za-z0-9_]{3,16}$|^[A-Za-z0-9_][A-Za-z0-9_ ]{1,13}[A-Za-z0-9_]$')
 
     if not user_name:
         return jsonify({'success': False,
                         'output': 'Enter A Username'})
+    if not UserNameCheckList.match(user_name):
+        return jsonify({'success': False, 'output': 'Not Valid username-Stop trying to hack.'})
 
     ## UUID API
-    response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{user_name}")
-    api_response = response.json()
+    try:
+        response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{user_name}", timeout = api_request_timeout)
+        api_response = response.json()
+    except:
+        print("api-java-timeout")
+        response = {'errorMessage': 'Timeout'}
+        api_response = response
+        
     print("api-pulled-mojang(java)")
     print(api_response)
 
     ## BEDROCK API 
     def Bedrock_Uuid_Api(UserName):
-        response = requests.get(f"https://mc-api.io/profile/{UserName}/BEDROCK")
-        api_response = response.json()
+        try:
+            response = requests.get(f"https://mc-api.io/profile/{UserName}/BEDROCK", timeout = api_request_timeout)
+            api_response = response.json()
+        except:
+            print("api-bedrock-timeout")
+            response = {'errorMessage': 'Timeout'}
+            api_response = response
+
         print("api-pulled-mc-api(bedrock)")
+        print(api_response)
         if (api_response.get('uuid')):
             UUIDUser = str(uuid.UUID(api_response['uuid']))
         else:
@@ -128,8 +162,12 @@ def get_data():
 @app.route('/Detailed_User_Stats')
 def Detailed_User_Stats():
 
+    stats_shared = api_data()
 
-    return render_template('Detailed_User_Stats.html', SERVER = ServerIP)
+    TitleBGColor = stats_shared['TitleBGColor']
+
+
+    return render_template('Detailed_User_Stats.html', SERVER = ServerIP, TitleBGColor = TitleBGColor,)
 
 
 
