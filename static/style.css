@@ -139,3 +139,56 @@ body{
 .DetailedUserLink:hover{
     background-color: rgba(150,150,150,.9);
 }
+
+
+/* DSU */
+
+.DSU_lookup {
+    color: white;
+    background-color: rgba(185, 163, 87, 0.7);
+    margin: 0 auto;
+    text-align: center;
+    border-radius: 8px;
+    width: 90%;
+}
+
+.DSU_Type_Choice,
+.DSU_Type_Choice::picker(select) {
+    appearance: base-select;
+}
+.DSU_Type_Choice{
+    border: 8px;
+    border-color: black;
+    border-radius: 5px;
+
+    background-color: rgba(175, 157, 118, 0.7);
+    width: 250px;
+    min-width:250px;
+    margin: 0 auto;
+}
+.DSU_Type_Choice::picker(select){
+    color: white;
+    background-color: rgba(41, 38, 31, 0.7);
+}
+
+.DSU_Type_Submit {
+    margin-top: 5px;
+    width: 100%;
+    max-width:100px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    margin: 0 auto;
+
+    border:none;
+    outline: none;
+    flex-grow: 1;
+    min-width: 0;
+
+    background-color:rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+}
+
+.DSU_Type_Submit:hover{
+    background-color:rgba(150,150,150,.8);
+}

@@ -4,7 +4,8 @@ ServerIP = ""
 Stats_Folder = r''
 
 # extra
-api_request_timeout = 10
+api_request_timeout = 10 # In seconds
+CacheTimeout = 600 # In seconds, for caching server stats api. 60 = save for 60 seconds then request again (if requested)
 #
 
 UUIDUser = 0
@@ -22,7 +23,7 @@ app = Flask(__name__)
 config = {
     "DEBUG": True,          
     "CACHE_TYPE": "SimpleCache", 
-    "CACHE_DEFAULT_TIMEOUT": 600
+    "CACHE_DEFAULT_TIMEOUT": CacheTimeout
 }
 app.config.from_mapping(config)
 cache = Cache(app)
@@ -52,8 +53,8 @@ def api_data():
 
 
     # Temp dont wanna start the server okay
-    onlinestatus = "online"
-    players = "0 people are currently online"
+    # onlinestatus = "online"
+    # players = "0 people are currently online"
 
 
     # Sets server info body to green/red. Only green if online-anything else red.
@@ -168,6 +169,17 @@ def Detailed_User_Stats():
 
 
     return render_template('Detailed_User_Stats.html', SERVER = ServerIP, TitleBGColor = TitleBGColor,)
+
+@app.route('/DSU_Type_Send', methods=['POST'])
+def DSUTypeSend():
+    DropDown = request.form.get('DSU_Type_Choice')
+    UserName = request.form.get('Username_DSU')
+
+    print(DropDown)
+    print(UserName)
+
+    return jsonify ({'DropDown':DropDown,'UserName':UserName})
+
 
 
 
