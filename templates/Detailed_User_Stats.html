@@ -62,7 +62,7 @@
                     });
                     let data = await response.json()
 
-                    if (!data.success) {document.getElementById('Result').innerText = data.output;document.getElementById('block').innerText ="";return;}
+                    if (!data.success) {document.getElementById('Result').innerText = data.output;document.getElementById('output').innerText =" ";return;}
 
                 
                     document.getElementById('Result').innerText = data.output;
@@ -77,7 +77,7 @@
 
         </script> <!---->
 
-                
+        <h1 id = Result>{{ output }}</h1>
     </body>
 
 

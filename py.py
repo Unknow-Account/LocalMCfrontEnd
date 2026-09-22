@@ -195,10 +195,34 @@ def DSUTypeSend():
         UUID = response.get('output')
     except requests.exceptions.RequestException as e:
         print("GetData For DSU_TYPE_SEND Failed")
-    print(UUID)
+    print(DropDown + " -- " + UserName + " -- ")
+
+    if DropDown == "Block":
+        ActionData = "used"
+    else:
+        if DropDown == "Playtime":
+            ActionData = "Playtime"
+        else:
+            if DropDown == "Mobs/Entities":
+                ActionData = "minecraft:killed_by"
+    
+    print(ActionData)
+        
+    StatsFileDSUPath = os.path.join(Stats_Folder,f'{UUID}.json')
+    print(StatsFileDSUPath)
+    if os.path.exists(StatsFileDSUPath):
+        with open(StatsFileDSUPath, 'r') as file:
+            StatsFileDSURaw = json.load(file)
+
+        StatsFileDSURaw2 = StatsFileDSURaw.get('stats')
+        StatsFileDSU = StatsFileDSURaw2.get(ActionData)
+    else:
+        return jsonify({'Success': False, 'output': 'Failed- Check UserName'})
+    
+    print(StatsFileDSU)
 
     # okay so right now it does provide whatever which is very good uh it works I guess.
-    return jsonify ({'DropDown':DropDown,'UserName':UserName,'block':'dirt'})
+    return jsonify ({'Success': False, 'DropDown':DropDown,'UserName':UserName,'output':StatsFileDSU})
 
 
 
