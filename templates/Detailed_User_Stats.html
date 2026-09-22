@@ -14,7 +14,7 @@
             <div class="playtimeTitle">
                 <h2>Enter Minecraft Username Here!</h2>            
             </div>
-        <form id="DSU_Type_Send">
+
             <div class="UserNameInput"  style="width: 20%;">
                 <input type="text" id="userInput" class="UserNameInput" placeholder="Enter Minecraft Username" name="Username_DSU">
             </div>
@@ -23,15 +23,14 @@
                 <h2>Pick what type of information you want?</h2>
             </div>
             
-            <select id="DSU_Type_Choice" name="DSU_Type_Choice" class="DSU_Type_Choice">
+            <select id="DSU_Type_Choice_Drop" name="DSU_Type_Choice" class="DSU_Type_Choice">
                 <option value="" disabled selected>Choose an option...</option>
                 <option value="Block">Block</option>
                 <option value="Playtime">Playtime</option>
                 <option value="Mobs/Entities">Mobs/Entities</option>
             </select>
 
-            <button onclick = "DSU_Type_POST()" type="submit" class="DSU_Type_Submit">View</button>
-        </form>
+            <button onclick = "DSU_Type_POST()" type="button" class="DSU_Type_Submit">View</button>
         <!-- Littery just the copy and past of index.html sumbit I will change this one day make it where it extracts whatever data is provided from the server.
         Do not hard code the different types 
         for BACKEND
@@ -40,38 +39,43 @@
             "SameBlock_Place":123
             etc etc 
         Also fix the payload in the url when submited
-
-        I hope she admits.
+        -->
         <script>
-                let currentUsername = "";
+                let Drop = "";
+                let Username = "";
                 async function DSU_Type_POST() {
-                    let text = document.getElementById('userInput').value;
+                    let text = document.getElementById('DSU_Type_Choice_Drop').value;
                     if (!text) {
                         return;
                     }
+                    let t3xt= document.getElementById('userInput').value;
+                    if (!t3xt) {
+                        return;
+                    }
 
-                    currentUsername = text;
+                    Drop = text;
+                    Username = t3xt;
 
-                    let response = await fetch('/get-data', {
+                    let response = await fetch('/DSU_Type_Send', {
                         method: 'POST',
-                        headers: {'Content-Type': 'application/json'},body: JSON.stringify({userInput: text})
+                        headers: {'Content-Type': 'application/json'},body: JSON.stringify({Drop: text,Username: t3xt})
                     });
                     let data = await response.json()
 
-                    if (!data.success) {document.getElementById('UUIDResult').innerText = data.output;document.getElementById('playtime').innerText ="";return;}
+                    if (!data.success) {document.getElementById('Result').innerText = data.output;document.getElementById('block').innerText ="";return;}
 
                 
-                    document.getElementById('UUIDResult').innerText = data.output;
+                    document.getElementById('Result').innerText = data.output;
 
-                    if (data.player_exist) {document.getElementById('playtime').innerText = "Your playtime is " + data.hours + " hours";}
+                    if (data.player_exist) {document.getElementById('block').innerText = "Your playtime is " + data.hours + " hours";}
 
-                    else {document.getElementById('playtime').innerText = "N/A - Player has not joined server"}
+                    else {document.getElementById('block').innerText = "N/A - Player has not joined server"}
 
-                    console.log(playtime);
+                    console.log(block);
 
                 }
 
-        </script> -->
+        </script> <!---->
 
                 
     </body>

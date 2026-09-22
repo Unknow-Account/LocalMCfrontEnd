@@ -90,72 +90,83 @@ def index():
     return render_template('index.html', SERVER=ServerIP,onlinestatus=onlinestatus,PThours=PThours,players=players, ServerStatsBodyColor=ServerStatsBodyColor, TitleBGColor = TitleBGColor)
 
 
-@app.route('/get-data', methods=['POST'])
-def get_data():
-    data = request.get_json()
-    user_name = data.get('userInput')
+def get_data_helper(user_name):
+    user_name = user_name
     UserNameCheckList = re.compile(r'^[A-Za-z0-9_]{3,16}$|^[A-Za-z0-9_][A-Za-z0-9_ ]{1,13}[A-Za-z0-9_]$')
-
+    
     if not user_name:
-        return jsonify({'success': False,
-                        'output': 'Enter A Username'})
+            return jsonify({'success': False,
+                            'output': 'Enter A Username'})
     if not UserNameCheckList.match(user_name):
-        return jsonify({'success': False, 'output': 'Not Valid username-Stop trying to hack.'})
-
-    ## UUID API
+            return jsonify({'success': False, 'output': 'Not Valid username-Stop trying to hack.'})
+    
+        ## UUID API
     try:
-        response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{user_name}", timeout = api_request_timeout)
-        api_response = response.json()
-    except:
-        print("api-java-timeout")
-        response = {'errorMessage': 'Timeout'}
-        api_response = response
-        
-    print("api-pulled-mojang(java)")
-    print(api_response)
-
-    ## BEDROCK API 
-    def Bedrock_Uuid_Api(UserName):
-        try:
-            response = requests.get(f"https://mc-api.io/profile/{UserName}/BEDROCK", timeout = api_request_timeout)
+            response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{user_name}", timeout = api_request_timeout)
             api_response = response.json()
-        except:
-            print("api-bedrock-timeout")
+    except:
+            print("api-java-timeout")
             response = {'errorMessage': 'Timeout'}
             api_response = response
-
-        print("api-pulled-mc-api(bedrock)")
-        print(api_response)
-        if (api_response.get('uuid')):
-            UUIDUser = str(uuid.UUID(api_response['uuid']))
-        else:
-            UUIDUser = str(uuid.UUID(int=0))
-
-        return UUIDUser
-    ## End of BEDROCK API
-
+            
+    print("api-pulled-mojang(java)")
+    print(api_response)
+    
+        ## BEDROCK API 
+    def Bedrock_Uuid_Api(UserName):
+            try:
+                response = requests.get(f"https://mc-api.io/profile/{UserName}/BEDROCK", timeout = api_request_timeout)
+                api_response = response.json()
+            except:
+                print("api-bedrock-timeout")
+                response = {'errorMessage': 'Timeout'}
+                api_response = response
+    
+            print("api-pulled-mc-api(bedrock)")
+            print(api_response)
+            if (api_response.get('uuid')):
+                UUIDUser = str(uuid.UUID(api_response['uuid']))
+            else:
+                UUIDUser = str(uuid.UUID(int=0))
+    
+            return UUIDUser
+        ## End of BEDROCK API
+    
     if (api_response.get('errorMessage')):
-        UUIDUser = Bedrock_Uuid_Api(user_name)
+            UUIDUser = Bedrock_Uuid_Api(user_name)
     else:
-        UUIDUser = str(uuid.UUID(api_response['id']))
-
+            UUIDUser = str(uuid.UUID(api_response['id']))
+    
     stats_file = os.path.join(Stats_Folder,f'{UUIDUser}.json')
-
-    # Does player have  stat file whatever thing?
+    
+        # Does player have  stat file whatever thing?
     if os.path.exists(stats_file):
-        with open(stats_file, 'r') as f:
-            datastats = json.load(f)
-        playtime = datastats ['stats']['minecraft:custom']['minecraft:play_time']
-        hours = playtime // 72000
-
-        player_exist = True
+            with open(stats_file, 'r') as f:
+                datastats = json.load(f)
+            playtime = datastats ['stats']['minecraft:custom']['minecraft:play_time']
+            hours = playtime // 72000
+    
+            player_exist = True
     else:
-        hours = "N/A"
-        player_exist = False
+            hours = "N/A"
+            player_exist = False
+    
+    
+    
+    
+    return {'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours}
+
+@app.route('/get-data', methods=['POST'])
+def get_data():
+    preUserName = request.get_json()
+    UserName = preUserName.get('userInput')
+    data = get_data_helper(UserName)
+    UUIDUser = data.get('output')
+    hours = data.get('hours')
+    player_exist = data.get('player_exist')
 
 
-
-
+    
     return jsonify ({'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours})
 
 
@@ -172,13 +183,22 @@ def Detailed_User_Stats():
 
 @app.route('/DSU_Type_Send', methods=['POST'])
 def DSUTypeSend():
-    DropDown = request.form.get('DSU_Type_Choice')
-    UserName = request.form.get('Username_DSU')
+    data = request.get_json()
+    DropDown = data.get('Drop')
+    UserName = data.get('Username')
+    print("Getting -" + DropDown + "- For -" + UserName +"-")
 
-    print(DropDown)
-    print(UserName)
+    GetDataPayLoad = {'UserInput': UserName}
+    try:
+        print(UserName)
+        response = get_data_helper(UserName)
+        UUID = response.get('output')
+    except requests.exceptions.RequestException as e:
+        print("GetData For DSU_TYPE_SEND Failed")
+    print(UUID)
 
-    return jsonify ({'DropDown':DropDown,'UserName':UserName})
+    # okay so right now it does provide whatever which is very good uh it works I guess.
+    return jsonify ({'DropDown':DropDown,'UserName':UserName,'block':'dirt'})
 
 
 
