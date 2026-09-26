@@ -192,3 +192,26 @@ body{
 .DSU_Type_Submit:hover{
     background-color:rgba(150,150,150,.8);
 }
+
+.Results {
+    margin: 0 auto;
+    width:80%;
+
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+}
+
+
+.StatsTable {
+    margin-top: 10px;
+    width:80%;
+    margin: 15px auto;
+    background-color:rgba(175, 157, 118, 0.7);
+    color:white;
+}
+
+.statsTable th,
+.StatsTable td {
+    border: 1px solid;
+    border-color: black;
+}

@@ -61,23 +61,36 @@
                         headers: {'Content-Type': 'application/json'},body: JSON.stringify({Drop: text,Username: t3xt})
                     });
                     let data = await response.json()
+                    console.log(data)
 
-                    if (!data.success) {document.getElementById('Result').innerText = data.output;document.getElementById('output').innerText =" ";return;}
+                    const result = document.getElementById('Result');
 
-                
-                    document.getElementById('Result').innerText = data.output;
-
-                    if (data.player_exist) {document.getElementById('block').innerText = "Your playtime is " + data.hours + " hours";}
-
-                    else {document.getElementById('block').innerText = "N/A - Player has not joined server"}
-
-                    console.log(block);
+                    Result.innerHTML = `
+                        <table class="StatsTable">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Object.entries(data.output).map(([Type, Value]) =>`
+                                    <tr>
+                                        <td>${Type}</td>
+                                        <td>${Value}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
 
                 }
 
-        </script> <!---->
+        </script> <!-- What if we make a table :scream: -->
+        <!-- MUST HAVE CSS FOR TABLE OR IT DOES NOT SHOW -->
+        <!-- Idea: Sort function for the table, least to greatest, greatest to least,etc etc -->
 
-        <h1 id = Result>{{ output }}</h1>
+        <div id="Result"></div>
     </body>
 
 

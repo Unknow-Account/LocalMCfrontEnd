@@ -119,7 +119,7 @@ def get_data_helper(user_name):
                 api_response = response.json()
             except:
                 print("api-bedrock-timeout")
-                response = {'errorMessage': 'Timeout'}
+                response = {'errorMessage': 'Timeout or Error'}
                 api_response = response
     
             print("api-pulled-mc-api(bedrock)")
@@ -192,10 +192,14 @@ def DSUTypeSend():
     try:
         print(UserName)
         response = get_data_helper(UserName)
-        UUID = response.get('output')
+        try:
+            UUID = response.get('output', {})
+        except AttributeError:
+            return jsonify ({'Success': False, 'output': "Failed"})
     except requests.exceptions.RequestException as e:
         print("GetData For DSU_TYPE_SEND Failed")
     print(DropDown + " -- " + UserName + " -- ")
+
 
     if DropDown == "Block":
         ActionData = "used"
@@ -220,9 +224,11 @@ def DSUTypeSend():
         return jsonify({'Success': False, 'output': 'Failed- Check UserName'})
     
     print(StatsFileDSU)
+    print(DropDown)
+    print(UserName)
 
     # okay so right now it does provide whatever which is very good uh it works I guess.
-    return jsonify ({'Success': False, 'DropDown':DropDown,'UserName':UserName,'output':StatsFileDSU})
+    return jsonify ({'Success': True, 'DropDown':DropDown,'UserName':UserName,'output':StatsFileDSU})
 
 
 
