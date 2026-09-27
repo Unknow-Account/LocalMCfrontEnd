@@ -12,6 +12,8 @@ UUIDUser = 0
 
 from flask import Flask, render_template, request, jsonify
 from flask_caching import Cache
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import json
 import os
 import requests
@@ -19,6 +21,7 @@ import uuid
 import re
 
 app = Flask(__name__)
+
 #Caching import stuff config
 config = {
     "DEBUG": True,          
@@ -28,9 +31,15 @@ config = {
 app.config.from_mapping(config)
 cache = Cache(app)
 
+limiter = Limiter (
+        key_func=get_remote_address,
+        app=app,
+        storage_uri="memory://"
+)
 
 
 @cache.cached(key_prefix='shared_api_data')
+@limiter.limit("45 per minute")
 def api_data():
         # API for server things and yeah
     try:
@@ -76,6 +85,7 @@ def api_data():
     return {"SERVER":ServerIP,"onlinestatus":onlinestatus,"PThours":"N/A","players":players,"ServerStatsBodyColor":ServerStatsBodyColor,"TitleBGColor":TitleBGColor}
 
 @app.route('/')
+@limiter.limit("30/minute")
 def index():
 
     stats_shared = api_data()
@@ -88,7 +98,6 @@ def index():
     players=stats_shared["players"]
 
     return render_template('index.html', SERVER=ServerIP,onlinestatus=onlinestatus,PThours=PThours,players=players, ServerStatsBodyColor=ServerStatsBodyColor, TitleBGColor = TitleBGColor)
-
 
 def get_data_helper(user_name):
     user_name = user_name
@@ -153,13 +162,13 @@ def get_data_helper(user_name):
     
     
     
-    
-    return {'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours}
+    return {'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours,"PThoursRAW":playtime}
 
 @app.route('/get-data', methods=['POST'])
 def get_data():
     preUserName = request.get_json()
     UserName = preUserName.get('userInput')
+
     data = get_data_helper(UserName)
     UUIDUser = data.get('output')
     hours = data.get('hours')
@@ -172,6 +181,7 @@ def get_data():
 
 
 @app.route('/Detailed_User_Stats')
+@limiter.limit("30/minute")
 def Detailed_User_Stats():
 
     stats_shared = api_data()
@@ -182,10 +192,16 @@ def Detailed_User_Stats():
     return render_template('Detailed_User_Stats.html', SERVER = ServerIP, TitleBGColor = TitleBGColor,)
 
 @app.route('/DSU_Type_Send', methods=['POST'])
+@limiter.limit("5/minute")
 def DSUTypeSend():
     data = request.get_json()
     DropDown = data.get('Drop')
     UserName = data.get('Username')
+
+    data2 = get_data_helper(UserName)
+    PThoursRAW = data2.get('PThoursRAW')
+    PThours = data2.get("PThours")
+
     print("Getting -" + DropDown + "- For -" + UserName +"-")
 
     GetDataPayLoad = {'UserInput': UserName}
@@ -218,11 +234,14 @@ def DSUTypeSend():
         with open(StatsFileDSUPath, 'r') as file:
             StatsFileDSURaw = json.load(file)
 
-        StatsFileDSURaw2 = StatsFileDSURaw.get('stats')
-        StatsFileDSU = StatsFileDSURaw2.get(ActionData)
+        if ActionData == "minecraft:killed_by":
+            StatsFileDSURaw2 = StatsFileDSURaw.get('stats')
+            StatsFileDSU = StatsFileDSURaw2.get(ActionData)
+
+        elif ActionData == "Playtime":
+            StatsFileDSU = {"Playtime In Hours":PThours,"Playtime in ticks (Raw)":PThoursRAW}
     else:
         return jsonify({'Success': False, 'output': 'Failed- Check UserName'})
-    
     print(StatsFileDSU)
     print(DropDown)
     print(UserName)
@@ -233,7 +252,10 @@ def DSUTypeSend():
 
 
 
-
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    print("RateLimit HIT")
+    return render_template('429.html', error=e.description), 429
 
 
 if __name__ == '__main__':
