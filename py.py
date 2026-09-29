@@ -98,7 +98,7 @@ def index():
     players=stats_shared["players"]
 
     return render_template('index.html', SERVER=ServerIP,onlinestatus=onlinestatus,PThours=PThours,players=players, ServerStatsBodyColor=ServerStatsBodyColor, TitleBGColor = TitleBGColor)
-
+@cache.memoize(timeout=300)
 def get_data_helper(user_name):
     user_name = user_name
     UserNameCheckList = re.compile(r'^[A-Za-z0-9_]{3,16}$|^[A-Za-z0-9_][A-Za-z0-9_ ]{1,13}[A-Za-z0-9_]$')
@@ -132,7 +132,6 @@ def get_data_helper(user_name):
                 api_response = response
     
             print("api-pulled-mc-api(bedrock)")
-            print(api_response)
             if (api_response.get('uuid')):
                 UUIDUser = str(uuid.UUID(api_response['uuid']))
             else:
@@ -192,7 +191,7 @@ def Detailed_User_Stats():
     return render_template('Detailed_User_Stats.html', SERVER = ServerIP, TitleBGColor = TitleBGColor,)
 
 @app.route('/DSU_Type_Send', methods=['POST'])
-@limiter.limit("5/minute")
+@limiter.limit("30/minute")
 def DSUTypeSend():
     data = request.get_json()
     DropDown = data.get('Drop')
@@ -218,13 +217,15 @@ def DSUTypeSend():
 
 
     if DropDown == "Block":
-        ActionData = "used"
+        ActionData = "minecraft:used"
     else:
         if DropDown == "Playtime":
             ActionData = "Playtime"
         else:
             if DropDown == "Mobs/Entities":
                 ActionData = "minecraft:killed_by"
+            elif DropDown == "Crafted":
+                ActionData = "minecraft:crafted"
     
     print(ActionData)
         
@@ -240,9 +241,12 @@ def DSUTypeSend():
 
         elif ActionData == "Playtime":
             StatsFileDSU = {"Playtime In Hours":PThours,"Playtime in ticks (Raw)":PThoursRAW}
+        elif ActionData == "minecraft:used" or ActionData == "minecraft:crafted":
+            StatsFileDSURaw2 = StatsFileDSURaw.get('stats')
+            StatsFileDSU = StatsFileDSURaw2.get(ActionData)
+        
     else:
         return jsonify({'Success': False, 'output': 'Failed- Check UserName'})
-    print(StatsFileDSU)
     print(DropDown)
     print(UserName)
 
@@ -255,6 +259,7 @@ def DSUTypeSend():
 @app.errorhandler(429)
 def ratelimit_handler(e):
     print("RateLimit HIT")
+
     return render_template('429.html', error=e.description), 429
 
 

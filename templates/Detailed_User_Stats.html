@@ -25,7 +25,8 @@
             
             <select id="DSU_Type_Choice_Drop" name="DSU_Type_Choice" class="DSU_Type_Choice">
                 <option value="" disabled selected>Choose an option...</option>
-                <option value="Block">Block</option>
+                <option value="Block">Block (Used)</option>
+                <option value="Crafted">Crafted</option>
                 <option value="Playtime">Playtime</option>
                 <option value="Mobs/Entities">Mobs/Entities</option>
             </select>
@@ -60,8 +61,22 @@
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},body: JSON.stringify({Drop: text,Username: t3xt})
                     });
+
+                    if (response.status === 429) {
+                        let ErrorHtml = await response.text();
+
+
+                        document.open();
+                        document.write(ErrorHtml);
+                        document.close();
+                        return;
+                    }
+
                     let data = await response.json()
                     console.log(data)
+
+
+
 
                     const result = document.getElementById('Result');
 
@@ -69,7 +84,7 @@
                         <table class="StatsTable">
                             <thead>
                                 <tr>
-                                    <th>Type</th>
+                                    <th>Type ${Drop}</th>
                                     <th>Value</th>
                                 </tr>
                             </thead>
