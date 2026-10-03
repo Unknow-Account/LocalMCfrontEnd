@@ -2,6 +2,7 @@
 
 ServerIP = ""
 Stats_Folder = r''
+CSVFile = r''
 
 # extra
 api_request_timeout = 10 # In seconds
@@ -14,11 +15,16 @@ from flask import Flask, render_template, request, jsonify
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from datetime import datetime,timedelta
+from matplotlib.figure import Figure
+import matplotlib.dates as mdates
 import json
 import os
 import requests
 import uuid
 import re
+import csv
+
 
 app = Flask(__name__)
 
@@ -45,17 +51,20 @@ def api_data():
     try:
         externalresponse = requests.get(f"https://api.mcstatus.io/v2/status/java/{ServerIP}", timeout = api_request_timeout).json()
         print("api-pulled-mcstatus(Server Status)")
+        TimeOutTF = "False"
     except:
         print("mojang-api-timed-out")
+        TimeOutTF = "True"
         externalresponse = {"online": False}
 
     onlinestatus = externalresponse['online']
     players1 = externalresponse.get('players', {}).get('online', 0)
 
 
+
     if onlinestatus:
         onlinestatus = "online"
-        players=(str(players1) + "people are currently online")
+        players=(str(players1) + " people are currently online")
     else:
         onlinestatus = "offline"
         players=" "
@@ -65,29 +74,27 @@ def api_data():
     # onlinestatus = "online"
     # players = "0 people are currently online"
 
-
     # Sets server info body to green/red. Only green if online-anything else red.
-    ServerStatsBodyColor = "Background-color: rgba(5, 139, 5, 0.5);"
+    ServerStatsBodyColor = "Background-color: rgba(139, 5, 5, 0.5);"
     TitleBGColor = "Background-color: rgba(155, 30, 14, 0.581);"
 
     if onlinestatus == "online":
         ServerStatsBodyColor = "Background-color: rgba(5, 139, 5, 0.5);"
         TitleBGColor = "Background-color: rgba(30, 155, 14, 0.581)"
-    else:
+    if TimeOutTF =="True":
         ServerStatsBodyColor = "Background-color: rgba(139, 5, 5, 0.5);"
-        TitleBGColor = "Background-color: rgba(155, 30, 14, 0.581);"
-
+        TitleBGColor = "Background-color: rgba(230, 245, 22, 0.581)"
 
 
 
     
 
-    return {"SERVER":ServerIP,"onlinestatus":onlinestatus,"PThours":"N/A","players":players,"ServerStatsBodyColor":ServerStatsBodyColor,"TitleBGColor":TitleBGColor}
+    return {"SERVER":ServerIP,"onlinestatus":onlinestatus,"PThours":"N/A","players":players,"ServerStatsBodyColor":ServerStatsBodyColor,"TitleBGColor":TitleBGColor,"PlayerNumberRaw":players1}
 
 @app.route('/')
 @limiter.limit("30/minute")
 def index():
-
+    mcPlayerLog()
     stats_shared = api_data()
 
     ServerIP=stats_shared["SERVER"]
@@ -98,16 +105,27 @@ def index():
     players=stats_shared["players"]
 
     return render_template('index.html', SERVER=ServerIP,onlinestatus=onlinestatus,PThours=PThours,players=players, ServerStatsBodyColor=ServerStatsBodyColor, TitleBGColor = TitleBGColor)
+
 @cache.memoize(timeout=300)
 def get_data_helper(user_name):
     user_name = user_name
     UserNameCheckList = re.compile(r'^[A-Za-z0-9_]{3,16}$|^[A-Za-z0-9_][A-Za-z0-9_ ]{1,13}[A-Za-z0-9_]$')
     
-    if not user_name:
-            return jsonify({'success': False,
-                            'output': 'Enter A Username'})
+    if ((not user_name) or (user_name ==" ")):
+        print("UserName Fail")
+        if not user_name ==" ":
+            return jsonify({'success': False,'output': 'Enter A Username'})
+        else:
+            success = "False"
+
     if not UserNameCheckList.match(user_name):
-            return jsonify({'success': False, 'output': 'Not Valid username-Stop trying to hack.'})
+        print("UserName Fail Match")
+        if not user_name ==" ":
+            #return jsonify({'success': False, 'output': 'Not Valid username-Stop trying to hack.'})
+            success = "False"
+        else:
+            success = "False"
+    success = "True"
     
         ## UUID API
     try:
@@ -136,6 +154,7 @@ def get_data_helper(user_name):
                 UUIDUser = str(uuid.UUID(api_response['uuid']))
             else:
                 UUIDUser = str(uuid.UUID(int=0))
+                success = "False"
     
             return UUIDUser
         ## End of BEDROCK API
@@ -146,33 +165,46 @@ def get_data_helper(user_name):
             UUIDUser = str(uuid.UUID(api_response['id']))
     
     stats_file = os.path.join(Stats_Folder,f'{UUIDUser}.json')
-    
+    print(stats_file)
         # Does player have  stat file whatever thing?
     if os.path.exists(stats_file):
             with open(stats_file, 'r') as f:
                 datastats = json.load(f)
-            playtime = datastats ['stats']['minecraft:custom']['minecraft:play_time']
+            playtime = datastats['stats']['minecraft:custom']['minecraft:play_time']
             hours = playtime // 72000
-    
+            PTmin = playtime // 1200
             player_exist = True
     else:
             hours = "N/A"
             player_exist = False
+            success = "False"
+
+    # Fail data
+    if success == "False":
+        print("Success Fail")
+        UUIDUser = 'Enter A Username'
+        hours = 0
+        player_exist = "False"
+        playtime = 0
+        PTmin = 0
     
     
-    
-    return {'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours,"PThoursRAW":playtime}
+    return {'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours,"PThoursRAW":playtime,"PThoursMIN":PTmin}
 
 @app.route('/get-data', methods=['POST'])
 def get_data():
     preUserName = request.get_json()
     UserName = preUserName.get('userInput')
 
+    #try:
     data = get_data_helper(UserName)
     UUIDUser = data.get('output')
     hours = data.get('hours')
     player_exist = data.get('player_exist')
-
+    #except:
+    #    UUIDUser = "Enter a correct Username"
+    #    hours = 0
+    #   player_exist = "False"
 
     
     return jsonify ({'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours})
@@ -197,10 +229,15 @@ def DSUTypeSend():
     DropDown = data.get('Drop')
     UserName = data.get('Username')
 
-    data2 = get_data_helper(UserName)
-    PThoursRAW = data2.get('PThoursRAW')
-    PThours = data2.get("PThours")
-
+    try:
+        data2 = get_data_helper(UserName)
+        PThoursRAW = data2.get('PThoursRAW')
+        PThours = data2.get("PThours")
+        PTmin = data2.get("PThoursMIN")
+    except:
+        PThoursRAW = 0
+        PThours = 0
+        PTmin = 0
     print("Getting -" + DropDown + "- For -" + UserName +"-")
 
     GetDataPayLoad = {'UserInput': UserName}
@@ -222,8 +259,10 @@ def DSUTypeSend():
         if DropDown == "Playtime":
             ActionData = "Playtime"
         else:
-            if DropDown == "Mobs/Entities":
+            if DropDown == "Mobs/Entities-Killed BY":
                 ActionData = "minecraft:killed_by"
+            elif DropDown == "Mobs/Entities-Killed":
+                ActionData = "minecraft:killed"
             elif DropDown == "Crafted":
                 ActionData = "minecraft:crafted"
     
@@ -240,11 +279,12 @@ def DSUTypeSend():
             StatsFileDSU = StatsFileDSURaw2.get(ActionData)
 
         elif ActionData == "Playtime":
-            StatsFileDSU = {"Playtime In Hours":PThours,"Playtime in ticks (Raw)":PThoursRAW}
-        elif ActionData == "minecraft:used" or ActionData == "minecraft:crafted":
+            StatsFileDSU = {"Playtime In Hours":PThours,"Playtime in ticks (Raw)":PThoursRAW,"Playtime in minutes":PTmin}
+
+        elif ActionData == "minecraft:used" or ActionData == "minecraft:crafted" or ActionData == "minecraft:killed":
             StatsFileDSURaw2 = StatsFileDSURaw.get('stats')
             StatsFileDSU = StatsFileDSURaw2.get(ActionData)
-        
+
     else:
         return jsonify({'Success': False, 'output': 'Failed- Check UserName'})
     print(DropDown)
@@ -252,6 +292,27 @@ def DSUTypeSend():
 
     # okay so right now it does provide whatever which is very good uh it works I guess.
     return jsonify ({'Success': True, 'DropDown':DropDown,'UserName':UserName,'output':StatsFileDSU})
+
+
+
+def mcPlayerLog():
+    ApiData= api_data()
+    CurrentPlayersNumber = str(ApiData.get('PlayerNumberRaw'))
+    OnlineStatus = ApiData.get('onlinestatus')
+    print(CurrentPlayersNumber + "-CPN")
+    CurrentTime = datetime.now()
+    print(CurrentTime)
+
+    # Puts timestamp and player count into the csv file.
+    file_exists = os.path.isfile(CSVFile)
+    with open(CSVFile,mode='a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["timestamp","PlayerCount","O/F"])
+        writer.writerow([CurrentTime, CurrentPlayersNumber,OnlineStatus])
+
+    # What im I doing
+    # Figure out how to MAKE a graph, we already have the data.
 
 
 

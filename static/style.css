@@ -215,3 +215,7 @@ body{
     border: 1px solid;
     border-color: black;
 }
+
+.StatsTable td:first-child{
+    text-align: right;
+}
