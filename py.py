@@ -1,8 +1,8 @@
 # Set up stuff
 
-ServerIP = ""
-Stats_Folder = r''
-CSVFile = r''
+ServerIP = "mc.justawebsite.cc"
+Stats_Folder = r'C:\STUFF2123123\Minecraft SErver Vanilla\world\players\stats'
+CSVFile = r'mcLogging.csv'
 
 
 
@@ -27,9 +27,11 @@ import requests
 import uuid
 import re
 import csv
-
+import io
+import base64
 
 app = Flask(__name__)
+app.config["DEBUG"] = False
 
 #Caching import stuff config
 config = {
@@ -101,6 +103,8 @@ def api_data2():
 @limiter.limit("30/minute")
 def index():
     stats_shared = api_data()
+    graphicPlayerCount()
+
 
     ServerIP=stats_shared["SERVER"]
     onlinestatus=stats_shared["onlinestatus"]
@@ -320,6 +324,48 @@ def mcPlayerLog():
 
     # What im I doing
     # Figure out how to MAKE a graph, we already have the data.
+    return "L"
+
+def graphicPlayerCount():
+    print("tigger")
+    times = []
+    player_counts = []
+    #--- gets time format good for the chart making libery
+    try:
+        with open('mcLogging.csv', mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if not row: continue
+
+                timestamp_str = row[0].split('.')[0]
+                timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                count = int(row[1])
+                times.append(timestamp)
+                player_counts.append(count)
+    except FileNotFoundError:
+        print("/!/CSV File NOT found /!/")
+        return "/!/CSV File NOT found /!/"
+    if not times:
+        return "No times"
+    #---
+    
+    #-- actually make chart thing (We love documenation)
+    fig = Figure(figsize=(8,4), dpi=100)
+    ax = fig.subplots()
+
+
+    ax.plot(times, player_counts, color='#0000ff', linewidth=2, marker='o',markersize=4)
+
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%h:%M'))
+    fig.autofmt_xdate()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches='tight')
+    buf.seek(0)
+
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    print(image_base64)
+    return image_base64       
 
 # Careful, doesn't like to stop fully. Flask no like
 scheduler = BackgroundScheduler()
