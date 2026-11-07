@@ -5,9 +5,9 @@
 # ^ Might make it a diff webpage maybe? I need more stuff anywho so.
 # Get something to do some vuln scanning.
 
-ServerIP = "mc.justawebsite.cc"
-Stats_Folder = r'C:\STUFF2123123\Minecraft SErver Vanilla\world\players\stats'
-CSVFile = r'mcLogging.csv'
+ServerIP = ""
+Stats_Folder = r''
+CSVFile = r''
 
 
 
