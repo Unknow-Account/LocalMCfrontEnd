@@ -103,8 +103,6 @@ def api_data2():
 @limiter.limit("30/minute")
 def index():
     stats_shared = api_data()
-    graphicPlayerCount()
-
 
     ServerIP=stats_shared["SERVER"]
     onlinestatus=stats_shared["onlinestatus"]
