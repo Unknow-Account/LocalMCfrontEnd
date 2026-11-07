@@ -27,6 +27,12 @@ body{
     transform: translateY(-70px);
 }
 
+.contain{
+    min-height: 100vh;
+    box-sizing:border-box;
+    padding-top: 20px;
+}
+
 .UserNameInput {
     width: 100%;
     max-width:400px;

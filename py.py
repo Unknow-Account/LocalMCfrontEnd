@@ -314,6 +314,17 @@ def DSUTypeSend():
     return jsonify ({'Success': True, 'DropDown':DropDown,'UserName':UserName,'output':StatsFileDSU})
 
 
+@app.route('/timechart')
+@limiter.limit("6/minute")
+def timechart():
+
+    stats_shared = api_data()
+
+    TitleBGColor = stats_shared['TitleBGColor']
+
+    return render_template('timechart.html', SERVER = ServerIP, TitleBGColor = TitleBGColor)
+
+
 # every minute or so or something
 def mcPlayerLog():
     with app.app_context():
