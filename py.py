@@ -5,6 +5,9 @@
 # ^ Might make it a diff webpage maybe? I need more stuff anywho so.
 # Get something to do some vuln scanning.
 
+# To actually shutdown: 
+# taskkill /f /im python.exe
+
 ServerIP = ""
 Stats_Folder = r''
 CSVFile = r''
@@ -59,6 +62,9 @@ def api_data():
 
     return api_data2()
 
+
+# be cool if I could cache this, but error happens if so. Look at more docs or google ways to not use.
+# Issue is that a non-ip calls it, which is scheualer. Makes no sense its a cache.
 def api_data2():
         # API for server things and yeah
     try:
@@ -133,8 +139,9 @@ def get_data_helper(user_name):
     if not UserNameCheckList.match(user_name):
         print("UserName Fail Match")
         if not user_name ==" ":
-            #return jsonify({'success': False, 'output': 'Not Valid username-Stop trying to hack.'})
+            
             success = "False"
+            return jsonify({'success': False, 'output': 'Not Valid username'})
         else:
             success = "False"
     success = "True"
@@ -209,15 +216,15 @@ def get_data():
     preUserName = request.get_json()
     UserName = preUserName.get('userInput')
 
-    #try:
-    data = get_data_helper(UserName)
-    UUIDUser = data.get('output')
-    hours = data.get('hours')
-    player_exist = data.get('player_exist')
-    #except:
-    #    UUIDUser = "Enter a correct Username"
-    #    hours = 0
-    #   player_exist = "False"
+    try:
+        data = get_data_helper(UserName)
+        UUIDUser = data.get('output')
+        hours = data.get('hours')
+        player_exist = data.get('player_exist')
+    except:
+        UUIDUser = "Enter a correct Username"
+        hours = 0
+        player_exist = "False"
 
     
     return jsonify ({'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours})
@@ -313,9 +320,7 @@ def mcPlayerLog():
         ApiData = api_data2()
     CurrentPlayersNumber = str(ApiData.get('PlayerNumberRaw'))
     OnlineStatus = ApiData.get('onlinestatus')
-    print(CurrentPlayersNumber + "-CPN")
     CurrentTime = datetime.now()
-    print(CurrentTime)
 
     # Puts timestamp and player count into the csv file.
     file_exists = os.path.isfile(CSVFile)
@@ -324,9 +329,10 @@ def mcPlayerLog():
         if not file_exists:
             writer.writerow(["timestamp","PlayerCount","O/F"])
         writer.writerow([CurrentTime, CurrentPlayersNumber,OnlineStatus])
-
+    print("Write csv timestamp done")
     # What im I doing
     # Figure out how to MAKE a graph, we already have the data.
+    # ^ Update: Function Below creates graph; graphicPlayerCount()
     return "L"
 
 def graphicPlayerCount():
@@ -370,6 +376,9 @@ def graphicPlayerCount():
     print(image_base64)
     return image_base64       
 
+
+
+
 # Careful, doesn't like to stop fully. Flask no like
 scheduler = BackgroundScheduler()
 scheduler.add_job(mcPlayerLog,'interval', minutes = 1)
@@ -383,4 +392,4 @@ def ratelimit_handler(e):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=False)
