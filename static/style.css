@@ -141,6 +141,21 @@ body{
 }
 
 
+.ServerPlayerChart{
+    background-color: rgba(213, 216, 30, 0.6);
+    color:white;
+    width: 40%;
+    text-align:center;
+    margin: 0 auto;
+    border-radius:25px;
+    text-decoration: none;
+}
+
+.ServerPlayerChart:hover{
+    color:black;
+    background-color: rgba(255,255,255,.8)
+}
+
 /* DSU */
 
 .DSU_lookup {
