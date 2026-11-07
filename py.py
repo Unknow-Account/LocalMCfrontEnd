@@ -4,6 +4,8 @@ ServerIP = ""
 Stats_Folder = r''
 CSVFile = r''
 
+
+
 # extra
 api_request_timeout = 10 # In seconds
 CacheTimeout = 600 # In seconds, for caching server stats api. 60 = save for 60 seconds then request again (if requested)
@@ -17,6 +19,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import datetime,timedelta
 from matplotlib.figure import Figure
+from apscheduler.schedulers.background import BackgroundScheduler
 import matplotlib.dates as mdates
 import json
 import os
@@ -43,10 +46,13 @@ limiter = Limiter (
         storage_uri="memory://"
 )
 
-
 @cache.cached(key_prefix='shared_api_data')
 @limiter.limit("45 per minute")
 def api_data():
+
+    return api_data2()
+
+def api_data2():
         # API for server things and yeah
     try:
         externalresponse = requests.get(f"https://api.mcstatus.io/v2/status/java/{ServerIP}", timeout = api_request_timeout).json()
@@ -94,7 +100,6 @@ def api_data():
 @app.route('/')
 @limiter.limit("30/minute")
 def index():
-    mcPlayerLog()
     stats_shared = api_data()
 
     ServerIP=stats_shared["SERVER"]
@@ -192,6 +197,7 @@ def get_data_helper(user_name):
     return {'success': True,'output': UUIDUser, 'hours': hours, 'player_exist': player_exist,"PThours":hours,"PThoursRAW":playtime,"PThoursMIN":PTmin}
 
 @app.route('/get-data', methods=['POST'])
+@limiter.limit("30/minute")
 def get_data():
     preUserName = request.get_json()
     UserName = preUserName.get('userInput')
@@ -294,9 +300,10 @@ def DSUTypeSend():
     return jsonify ({'Success': True, 'DropDown':DropDown,'UserName':UserName,'output':StatsFileDSU})
 
 
-
+# every minute or so or something
 def mcPlayerLog():
-    ApiData= api_data()
+    with app.app_context():
+        ApiData = api_data2()
     CurrentPlayersNumber = str(ApiData.get('PlayerNumberRaw'))
     OnlineStatus = ApiData.get('onlinestatus')
     print(CurrentPlayersNumber + "-CPN")
@@ -314,8 +321,10 @@ def mcPlayerLog():
     # What im I doing
     # Figure out how to MAKE a graph, we already have the data.
 
-
-
+# Careful, doesn't like to stop fully. Flask no like
+scheduler = BackgroundScheduler()
+scheduler.add_job(mcPlayerLog,'interval', minutes = 1)
+scheduler.start()
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
