@@ -6,9 +6,9 @@
 # To actually shutdown: 
 # taskkill /f /im python.exe
 
-ServerIP = ""
-Stats_Folder = r''
-CSVFile = r''
+ServerIP = "" # This is your server IP, what people connect to
+Stats_Folder = r'' # Your minecraft stats folder, /world/players/stats
+CSVFile = r' '# The file for player counting history, what the chart uses.
 
 
 
