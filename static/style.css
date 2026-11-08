@@ -240,3 +240,18 @@ body{
 .StatsTable td:first-child{
     text-align: right;
 }
+
+
+/* TimeChart */
+
+.chartImage{
+    text-align:center;
+    margin: 0 auto;
+    width:80%;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    background-color:rgba(73, 182, 73, 0.459);
+    border-radius: 30px;
+
+
+}

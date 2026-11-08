@@ -1,8 +1,6 @@
 # Set up stuff
 
 # what to do:
-# Get base64 image on the actual website
-# ^ Might make it a diff webpage maybe? I need more stuff anywho so.
 # Get something to do some vuln scanning.
 
 # To actually shutdown: 
@@ -16,7 +14,7 @@ CSVFile = r''
 
 # extra
 api_request_timeout = 10 # In seconds
-CacheTimeout = 600 # In seconds, for caching server stats api. 60 = save for 60 seconds then request again (if requested)
+CacheTimeout = 60 # In seconds, for caching server stats api. 60 = save for 60 seconds then request again (if requested)
 #
 
 UUIDUser = 0
@@ -320,6 +318,7 @@ def timechart():
 
     stats_shared = api_data()
     TitleBGColor = stats_shared['TitleBGColor']
+
 
     image64 = graphicPlayerCount()
 
