@@ -8,7 +8,7 @@
 
 ServerIP = "" # This is your server IP, what people connect to
 Stats_Folder = r'' # Your minecraft stats folder, /world/players/stats
-CSVFile = r' '# The file for player counting history, what the chart uses.
+CSVFile = r'' # The file for player counting history, what the chart uses.
 
 
 
