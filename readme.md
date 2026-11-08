@@ -32,6 +32,11 @@ waitress-serve --host=127.0.0.1 --port=5000 py:app
 
 I so not know if any other OS's work, as I do not have access to them. if any issues let me know!
 
+After:
+
+Go into py.py and fill in serverIP, Stats_Folder, and CSVFile!
+
+
 ## How to launch and shutdown
 
 Launch:
