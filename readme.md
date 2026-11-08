@@ -46,7 +46,9 @@ Go into py.py and fill in serverIP, Stats_Folder, and CSVFile!
 Launch:
 
 cd C:\path\to\folder\containing\this\repo\
+
 venv\Scripts\activate
+
 waitress-serve --host=127.0.0.1 --port=5000 py:app
 
 Shutdown:
