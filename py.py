@@ -8,9 +8,9 @@
 # To actually shutdown: 
 # taskkill /f /im python.exe
 
-ServerIP = "mc.justawebsite.cc"
-Stats_Folder = r'C:\STUFF2123123\Minecraft SErver Vanilla\world\players\stats'
-CSVFile = r'mcLogging.csv'
+ServerIP = ""
+Stats_Folder = r''
+CSVFile = r''
 
 
 
@@ -319,10 +319,11 @@ def DSUTypeSend():
 def timechart():
 
     stats_shared = api_data()
-
     TitleBGColor = stats_shared['TitleBGColor']
 
-    return render_template('timechart.html', SERVER = ServerIP, TitleBGColor = TitleBGColor)
+    image64 = graphicPlayerCount()
+
+    return render_template('timechart.html', SERVER = ServerIP, TitleBGColor = TitleBGColor, image64 = image64)
 
 
 # every minute or so or something
@@ -384,7 +385,6 @@ def graphicPlayerCount():
     buf.seek(0)
 
     image_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    print(image_base64)
     return image_base64       
 
 
